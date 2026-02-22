@@ -129,6 +129,38 @@
             line-height: 1.4;
         }
 
+        .banner {
+            margin-top: 12px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(0,0,0,.25);
+            border: 1px solid rgba(255,255,255,.18);
+            font-size: 12px;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .banner strong { display: block; margin-bottom: 6px; }
+
+        .banner .row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .banner .smallbtn {
+            appearance: none;
+            border: 1px solid rgba(255,255,255,.22);
+            background: rgba(255,255,255,.12);
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 999px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
         .note {
             margin-top: 14px;
             padding: 12px 14px;
@@ -184,6 +216,16 @@
 
                 <div class="hint" id="hint"></div>
                 <div class="hint" id="status"></div>
+                <div class="banner" id="iosSafariBanner">
+                    <strong>iPhone uyarısı</strong>
+                    Quick Look AR, iOS'ta genelde sadece <b>Safari</b> üzerinden sorunsuz çalışır.
+                    Chrome / DuckDuckGo / Brave gibi tarayıcılarda AR butonu açılmayabilir.
+                    
+                    <div class="row">
+                        <button class="smallbtn" id="copyLinkBtn" type="button">🔗 Linki Kopyala</button>
+                        <button class="smallbtn" id="howSafariBtn" type="button">📌 Safari’de Aç Nasıl?</button>
+                    </div>
+                </div>
             </section>
         </div>
     </div>
@@ -195,32 +237,36 @@
             {
                 id: 'standart',
                 name: 'Standart',
-                size: '90x90 cm',
+                size: '90×90×200 cm',
                 icon: '🚿',
+                dimsCm: { w: 90, d: 90, h: 200 },
                 glb: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
                 usdz: 'https://modelviewer.dev/shared-assets/models/Astronaut.usdz'
             },
             {
                 id: 'kose',
                 name: 'Köşe',
-                size: '80x120 cm',
+                size: '80×120×200 cm',
                 icon: '📐',
+                dimsCm: { w: 80, d: 120, h: 200 },
                 glb: 'https://modelviewer.dev/shared-assets/models/RobotExpressive.glb',
                 usdz: 'https://modelviewer.dev/shared-assets/models/RobotExpressive.usdz'
             },
             {
                 id: 'rayli',
                 name: 'Raylı',
-                size: '100x100 cm',
+                size: '100×100×200 cm',
                 icon: '🚪',
+                dimsCm: { w: 100, d: 100, h: 200 },
                 glb: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
                 usdz: 'https://modelviewer.dev/shared-assets/models/Astronaut.usdz'
             },
             {
                 id: 'kuvetli',
                 name: 'Küvetli',
-                size: '120x85 cm',
+                size: '120×80×150 cm',
                 icon: '🛁',
+                dimsCm: { w: 120, d: 80, h: 150 },
                 glb: 'https://modelviewer.dev/shared-assets/models/RobotExpressive.glb',
                 usdz: 'https://modelviewer.dev/shared-assets/models/RobotExpressive.usdz'
             }
@@ -235,6 +281,9 @@
         const infoBtn = document.getElementById('infoBtn');
         const iosArLink = document.getElementById('iosArLink');
         const iosArImg = document.getElementById('iosArImg');
+        const iosSafariBanner = document.getElementById('iosSafariBanner');
+        const copyLinkBtn = document.getElementById('copyLinkBtn');
+        const howSafariBtn = document.getElementById('howSafariBtn');
 
         let activeId = null;
 
@@ -244,6 +293,28 @@
 
         function isIOS() {
             return /iPad|iPhone|iPod/.test(navigator.userAgent);
+        }
+
+        function isSafariOnIOS() {
+            // iOS browsers are WKWebView but Safari is the one that reliably supports Quick Look
+            const ua = navigator.userAgent;
+            const isAppleWebKit = /AppleWebKit/i.test(ua);
+            const isSafari = /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS|DuckDuckGo|Brave/i.test(ua);
+            return isAppleWebKit && isSafari;
+        }
+
+        async function copyText(text) {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                }
+            } catch (e) {
+                // ignore
+            }
+            // Fallback
+            window.prompt('Linki kopyalamak için basılı tutup kopyalayın:', text);
+            return false;
         }
 
         function setHint(text) {
@@ -283,12 +354,40 @@
             iosArImg.src = p.usdz;
             setStatus('');
 
+            // Ölçü bilgisini kullanıcıya göster
+            if (p.dimsCm) {
+                setStatus(`Seçili ölçü: ${p.dimsCm.w}×${p.dimsCm.d}×${p.dimsCm.h} cm`);
+            }
+
             if (isIOS()) {
-                setHint('iPhone: AR butonuna basınca Quick Look açılacak.');
+                if (isSafariOnIOS()) {
+                    setHint('iPhone: AR butonuna basınca Quick Look açılacak.');
+                    iosSafariBanner.style.display = 'none';
+                    arBtn.disabled = false;
+                    arBtn.style.opacity = '1';
+                } else {
+                    setHint('iPhone: AR için Safari önerilir.');
+                    iosSafariBanner.style.display = 'block';
+                    arBtn.disabled = true;
+                    arBtn.style.opacity = '.6';
+                    setStatus('Safari’de açınca AR çalışır.');
+                }
             } else {
                 setHint('Android: AR butonuna basınca Scene Viewer açılacak.');
+                iosSafariBanner.style.display = 'none';
+                arBtn.disabled = false;
+                arBtn.style.opacity = '1';
             }
         }
+
+        copyLinkBtn.addEventListener('click', async () => {
+            await copyText(location.href);
+            setStatus('Link kopyalandı. Safari’ye yapıştırıp açabilirsiniz.');
+        });
+
+        howSafariBtn.addEventListener('click', () => {
+            alert('Safari’de açmak için:\n\n1) Paylaş (kare+ok) simgesine basın\n2) "Safari’de Aç" seçin\n\nEğer seçenek yoksa linki kopyalayıp Safari’ye yapıştırın.');
+        });
 
         function openAndroidSceneViewer(glbUrl) {
             // Scene Viewer intent. Works best on Android Chrome.
@@ -338,7 +437,8 @@
         infoBtn.addEventListener('click', () => {
             const p = PRODUCTS.find(x => x.id === activeId);
             if (!p) return;
-            alert(`${p.name}\nÖlçü: ${p.size}\n\nNot: Şu an demo 3D model var. Duşakabin GLB/USDZ gelince gerçek ürününüz görünecek.`);
+            const dims = p.dimsCm ? `${p.dimsCm.w}×${p.dimsCm.d}×${p.dimsCm.h} cm` : p.size;
+            alert(`${p.name}\nÖlçü: ${dims}\n\nNot: Gerçek 1:1 AR ölçü için duşakabin GLB/USDZ modeli gerekir. Şu an demo 3D model kullanıyoruz.`);
         });
 
         // Init
