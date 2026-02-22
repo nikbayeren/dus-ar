@@ -182,6 +182,7 @@
 
     <!-- Controls -->
     <div class="controls">
+        <button class="control-btn" onclick="testFunction()">🧪 Test</button>
         <button class="control-btn" onclick="resetPosition()">🔄 Sıfırla</button>
         <button class="control-btn" onclick="changeColor()">🎨 Renk</button>
         <button class="control-btn" onclick="takePhoto()">📷 Fotoğraf</button>
@@ -233,6 +234,12 @@
             }, 3000);
         });
 
+        // AR başlatma fonksiyonu
+        function initAR() {
+            console.log('AR başlatılıyor...');
+            // AR.js başlatma kodları buraya
+        }
+
         // Duşakabin modelini oluştur
         function initShowerCabin() {
             const model = showerModels[currentModel];
@@ -277,14 +284,24 @@
             initShowerCabin();
         }
 
+        // Test fonksiyonu
+        function testFunction() {
+            console.log('Test butonu çalıştı!');
+            alert('Butonlar çalışıyor! 🎉');
+        }
+
         // Kontroller
         function resetPosition() {
+            console.log('Sıfırlama butonu çalıştı');
             const cabin = document.getElementById('shower-cabin');
-            cabin.setAttribute('position', '0 0.5 0');
-            cabin.setAttribute('rotation', '0 0 0');
+            if (cabin) {
+                cabin.setAttribute('position', '0 0.5 0');
+                cabin.setAttribute('rotation', '0 0 0');
+            }
         }
 
         function changeColor() {
+            console.log('Renk butonu çalıştı');
             const colors = ['#87CEEB', '#B0E0E6', '#ADD8E6', '#E0FFFF', '#F0F8FF'];
             const randomColor = colors[Math.floor(Math.random() * colors.length)];
             const glass = document.getElementById('glass-panel');
@@ -294,12 +311,16 @@
         }
 
         function takePhoto() {
+            console.log('Fotoğraf butonu çalıştı');
             alert('Fotoğraf çekme özelliği yakında eklenecek!');
         }
 
         function toggleAR() {
+            console.log('AR butonu çalıştı');
             const container = document.getElementById('ar-container');
-            container.classList.toggle('hidden');
+            if (container) {
+                container.classList.toggle('hidden');
+            }
         }
 
         // Dokunmatik kontroller
