@@ -27,21 +27,24 @@
         }
         
         #ar-container {
-            position: absolute;
+            position: fixed;
             width: 100%;
             height: 100%;
+            z-index: 1;
+            pointer-events: none;
         }
         
         .ui-overlay {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            z-index: 1000;
+            z-index: 9998;
             background: rgba(0,0,0,0.8);
             color: white;
             padding: 20px;
             backdrop-filter: blur(10px);
+            pointer-events: auto;
         }
         
         .product-selector {
@@ -60,6 +63,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
+            pointer-events: auto;
         }
         
         .product-card:hover {
@@ -73,13 +77,14 @@
         }
         
         .controls {
-            position: absolute;
+            position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             gap: 10px;
-            z-index: 1000;
+            z-index: 9999;
+            pointer-events: auto;
         }
         
         .control-btn {
