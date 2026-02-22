@@ -186,6 +186,7 @@
         <button class="control-btn" onclick="changeColor()">🎨 Renk</button>
         <button class="control-btn" onclick="takePhoto()">📷 Fotoğraf</button>
         <button class="control-btn" onclick="toggleAR()">📱 AR</button>
+        <button class="control-btn" onclick="requestDeviceOrientation()">🔐 Sensor İzni</button>
     </div>
 
     <script>
@@ -457,11 +458,38 @@
             }
         });
 
+        // Device Motion Sensors için izin iste
+        function requestDeviceOrientation() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                // iOS 13+ için izin iste
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response == 'granted') {
+                            console.log('Device orientation izni verildi');
+                            initAR();
+                        } else {
+                            console.log('Device orientation izni reddedildi');
+                            // İzin reddedilse bile AR çalışmaya devam et
+                            initAR();
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                // Diğer tarayıcılar için direkt başlat
+                console.log('Device orientation izni gerekli değil');
+                initAR();
+            }
+        }
+
         // Kamera izni kontrol
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(function(stream) {
                     console.log('Kamera erişimi başarılı');
+                    // Device motion iznini iste
+                    setTimeout(() => {
+                        requestDeviceOrientation();
+                    }, 1000);
                 })
                 .catch(function(err) {
                     console.error('Kamera erişimi hatası:', err);
