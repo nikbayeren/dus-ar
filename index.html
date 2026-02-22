@@ -164,12 +164,15 @@
                     alt="Duşakabin modeli"
                     ar
                     ar-modes="scene-viewer quick-look webxr"
+                    ar-scale="fixed"
                     camera-controls
                     touch-action="pan-y"
                     shadow-intensity="0.8"
                     exposure="1.0"
                     autoplay>
                 </model-viewer>
+
+                <a id="iosArLink" rel="ar" href="" style="display:none"></a>
 
                 <div class="toolbar">
                     <button class="btn" id="arBtn" type="button">📱 Banyonuzda Dene (AR)</button>
@@ -178,6 +181,7 @@
                 </div>
 
                 <div class="hint" id="hint"></div>
+                <div class="hint" id="status"></div>
             </section>
         </div>
     </div>
@@ -223,11 +227,17 @@
         const mv = document.getElementById('mv');
         const list = document.getElementById('productList');
         const hint = document.getElementById('hint');
+        const statusEl = document.getElementById('status');
         const arBtn = document.getElementById('arBtn');
         const resetBtn = document.getElementById('resetBtn');
         const infoBtn = document.getElementById('infoBtn');
+        const iosArLink = document.getElementById('iosArLink');
 
         let activeId = null;
+
+        function setStatus(text) {
+            statusEl.textContent = text;
+        }
 
         function isIOS() {
             return /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -266,6 +276,9 @@
             mv.setAttribute('ios-src', p.usdz);
             mv.alt = `${p.name} duşakabin`;
 
+            iosArLink.href = p.usdz;
+            setStatus('');
+
             if (isIOS()) {
                 setHint('iPhone: AR butonuna basınca Quick Look açılacak.');
             } else {
@@ -273,15 +286,44 @@
             }
         }
 
+        function openAndroidSceneViewer(glbUrl) {
+            // Scene Viewer intent. Works best on Android Chrome.
+            const file = encodeURIComponent(glbUrl);
+            const intentUrl = `intent://arvr.google.com/scene-viewer/1.0?file=${file}&mode=ar_preferred#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(location.href)};end;`;
+            window.location.href = intentUrl;
+        }
+
+        function openIOSQuickLook() {
+            // iOS Quick Look: <a rel="ar" href="model.usdz"> click must be user gesture.
+            iosArLink.click();
+        }
+
         arBtn.addEventListener('click', async () => {
-            // model-viewer, AR butonunu kendi içinde yönetir.
-            // Biz direkt çağırıyoruz.
-            try {
-                await mv.activateAR();
-            } catch (e) {
-                // Bazı cihazlarda HTTPS/uyumluluk yüzünden açılmayabilir.
-                alert('AR açılamadı. Telefonunuzda Safari/Chrome güncel mi? iPhone için iOS Quick Look destekli olmalı.');
+            const p = PRODUCTS.find(x => x.id === activeId);
+            if (!p) return;
+
+            setStatus('AR açılıyor...');
+
+            // First try model-viewer native method if present
+            if (typeof mv.activateAR === 'function') {
+                try {
+                    await mv.activateAR();
+                    setStatus('');
+                    return;
+                } catch (e) {
+                    // fall through to platform-specific fallback
+                }
             }
+
+            // Fallback per platform
+            if (isIOS()) {
+                setStatus('iPhone: Quick Look açılıyor...');
+                openIOSQuickLook();
+                return;
+            }
+
+            setStatus('Android: Scene Viewer açılıyor...');
+            openAndroidSceneViewer(p.glb);
         });
 
         resetBtn.addEventListener('click', () => {
