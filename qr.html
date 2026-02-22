@@ -246,23 +246,22 @@
         <div class="instructions">
             <h3>📋 Nasıl Kullanılır?</h3>
             <ol>
-                <li>Telefonunuzun kamerası ile QR kodu tarayın</li>
-                <li>Kamera izni verin (gerekli)</li>
-                <li>Düz bir yüzeye (zemin veya duvar) odaklayın</li>
-                <li>Duşakabin modeli görünür hale gelir</li>
-                <li>Modeli hareket ettirin, ölçeklendirin, döndürün</li>
-                <li>Farklı modelleri ve renkleri deneyin</li>
-                <li>Beğendiğiniz görüntüyü fotoğraf çekin</li>
+                <li>Bu sayfayı telefonunuzdan açın</li>
+                <li>"AR Uygulamasını Aç" butonuna basın</li>
+                <li>Üstteki kartlardan duşakabin modelini seçin</li>
+                <li>"Renk Değiştir" ile cam rengini değiştirin</li>
+                <li>Telefon ekranında sağa/sola kaydırarak (swipe) model değiştirin</li>
+                <li>"Bilgi" ile ölçü ve açıklamayı görün</li>
             </ol>
         </div>
         
         <div class="note">
-            <strong>⚠️ Not:</strong> İlk kullanımda Hiro marker (QR kod) gereklidir. 
-            Sonraki kullanımlarda düz yüzey tespiti çalışır.
+            <strong>⚠️ Not:</strong> Eğer daha önce eski sürümü açtıysanız, tarayıcı önbelleği nedeniyle eski ekran gelebilir.
+            Bu durumda sayfayı yenileyin veya gizli sekmede açın.
         </div>
         
         <div style="margin-top: 30px;">
-            <a href="index.html" class="btn">🚀 AR Uygulamasını Aç</a>
+            <a href="index.html?v=1" class="btn">🚀 AR Uygulamasını Aç</a>
             <a href="#" onclick="window.print()" class="btn btn-secondary">🖨️ Yazdır</a>
         </div>
         
@@ -276,7 +275,7 @@
     <script>
         // QR kodu oluştur (basit gösterim)
         function generateQR() {
-            const currentUrl = window.location.href.replace('qr.html', 'index.html');
+            const currentUrl = window.location.href.replace('qr.html', 'index.html?v=1');
             console.log('QR Code URL:', currentUrl);
             
             // Gerçek QR kod için API kullanılabilir
