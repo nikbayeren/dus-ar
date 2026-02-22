@@ -6,6 +6,10 @@
     <title>Duşakabin AR - Banyonuzda Deneyin</title>
     <meta name="description" content="Duşakabinlerinizi artırılmış gerçeklikle banyonuzda görün">
     
+    <!-- iOS Sensor İzni İçin Gerekli Meta -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <!-- AR.js -->
@@ -131,9 +135,100 @@
         .hidden {
             display: none !important;
         }
+
+        /* iOS Sensor İzni Dialog */
+        .ios-permission-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+        }
+
+        .permission-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 350px;
+            text-align: center;
+            color: #333;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .permission-content h2 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .permission-content p {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .permission-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .permission-btn {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .allow-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .allow-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .deny-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .deny-btn:hover {
+            background: #da190b;
+            transform: translateY(-2px);
+        }
+
+        .permission-note {
+            color: #666;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
+    <!-- iOS Sensor İzni Dialog -->
+    <div id="ios-permission-dialog" class="ios-permission-dialog">
+        <div class="permission-content">
+            <h2>🔐 Sensor İzni Gerekli</h2>
+            <p>Duşakabin AR uygulaması cihaz sensörlerine erişim izni gerektirir.</p>
+            <p><strong>Lütfen aşağıdaki "İzin Ver" butonuna tıklayın:</strong></p>
+            <div class="permission-buttons">
+                <button class="permission-btn allow-btn" onclick="requestIOSPermission()">🔓 İzin Ver</button>
+                <button class="permission-btn deny-btn" onclick="denyIOSPermission()">❌ Reddet</button>
+            </div>
+            <p class="permission-note"><small>Not: İzin vermezseniz uygulama yine de çalışır.</small></p>
+        </div>
+    </div>
+
     <!-- Loading Screen -->
     <div id="loading" class="loading">
         <div class="loading-spinner"></div>
@@ -233,10 +328,23 @@
 
         // Başlangıç
         window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('loading').classList.add('hidden');
-                initShowerCabin();
-            }, 3000);
+            console.log('📱 Sayfa yüklendi');
+            
+            // iOS detection
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            console.log('iOS cihaz:', isIOS);
+            
+            if (isIOS) {
+                // iOS için izin dialogunu göster
+                setTimeout(() => {
+                    showPermissionDialog();
+                }, 2000);
+            } else {
+                // Diğer cihazlar için direkt başlat
+                setTimeout(() => {
+                    startAR();
+                }, 3000);
+            }
         });
 
         // AR başlatma fonksiyonu
@@ -483,48 +591,77 @@
             }
         });
 
-        // Device Motion Sensors için izin iste
-        function requestDeviceOrientation() {
-            // iOS sensor izin dialogunda butonlar çalışmıyor, alternatif çözüm
+        // iOS Sensor İzni Fonksiyonları
+        function requestIOSPermission() {
+            console.log('iOS izin isteği başlatılıyor...');
+            
+            // iOS 13+ DeviceOrientationPermission
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                // iOS 13+ için kullanıcı butona tıklaması gerekiyor
-                const userGesture = Promise.resolve();
-                userGesture.then(() => {
-                    DeviceOrientationEvent.requestPermission()
-                        .then(response => {
-                            console.log('Device orientation response:', response);
-                            if (response == 'granted') {
-                                console.log('Device orientation izni verildi');
-                                initAR();
-                            } else {
-                                console.log('Device orientation izni reddedildi');
-                                // İzin reddedilse bile AR çalışmaya devam et
-                                initAR();
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Device orientation izin hatası:', error);
-                            // Hata olsa bile AR çalışmaya devam et
-                            initAR();
-                        });
-                });
+                // Kullanıcı etkileşimi sonrası izin iste
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        console.log('DeviceOrientation izin yanıtı:', response);
+                        if (response === 'granted') {
+                            console.log('✅ DeviceOrientation izni verildi');
+                            hidePermissionDialog();
+                            startAR();
+                        } else {
+                            console.log('❌ DeviceOrientation izni reddedildi');
+                            hidePermissionDialog();
+                            startAR(); // İzin rededilse bile çalış
+                        }
+                    })
+                    .catch(error => {
+                        console.error('❌ DeviceOrientation izin hatası:', error);
+                        hidePermissionDialog();
+                        startAR(); // Hata olsa bile çalış
+                    });
             } else {
-                // Diğer tarayıcılar için direkt başlat
-                console.log('Device orientation izni gerekli değil');
-                initAR();
+                // Diğer tarayıcılar veya izin gerekmiyorsa
+                console.log('DeviceOrientation izni gerekli değil');
+                hidePermissionDialog();
+                startAR();
             }
         }
+
+        function denyIOSPermission() {
+            console.log('Kullanıcı izni reddetti');
+            hidePermissionDialog();
+            startAR(); // Reddetse bile AR çalışır
+        }
+
+        function hidePermissionDialog() {
+            const dialog = document.getElementById('ios-permission-dialog');
+            if (dialog) {
+                dialog.classList.add('hidden');
+            }
+        }
+
+        function showPermissionDialog() {
+            const dialog = document.getElementById('ios-permission-dialog');
+            if (dialog) {
+                dialog.classList.remove('hidden');
+            }
+        }
+
+        function startAR() {
+            console.log('🚀 AR başlatılıyor...');
+            document.getElementById('loading').classList.add('hidden');
+            initShowerCabin();
+        }
+
+        // iOS Sensor İzni Fonksiyonları
 
         // Kamera izni kontrol
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(function(stream) {
-                    console.log('Kamera erişimi başarılı');
-                    // Sensor izni olmadan direkt AR başlat
-                    initAR();
+                    console.log('✅ Kamera erişimi başarılı');
+                    // Kamera başarılı, sensor izni için bekle
+                    // iOS detection başlangıçta handled
                 })
                 .catch(function(err) {
-                    console.error('Kamera erişimi hatası:', err);
+                    console.error('❌ Kamera erişimi hatası:', err);
                     alert('Kamera erişimi gerekli. Lütfen izin verin.');
                 });
         }
