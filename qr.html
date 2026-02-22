@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duşakabin AR - QR Kod</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .logo {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .qr-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 3px dashed #667eea;
+        }
+        
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            background: white;
+            border: 5px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666;
+            position: relative;
+        }
+        
+        .qr-code::before {
+            content: "QR KOD";
+            position: absolute;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .qr-pattern {
+            width: 180px;
+            height: 180px;
+            background-image: 
+                repeating-linear-gradient(0deg, #000 0px, #000 5px, #fff 5px, #fff 10px),
+                repeating-linear-gradient(90deg, #000 0px, #000 5px, #fff 5px, #fff 10px);
+            opacity: 0.3;
+            mix-blend-mode: multiply;
+        }
+        
+        .instructions {
+            background: #f0f8ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .instructions ol {
+            color: #555;
+            line-height: 1.8;
+            margin-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.6);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .feature {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+        
+        .feature-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .feature-desc {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #856404;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .qr-code {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .qr-pattern {
+                width: 130px;
+                height: 130px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🚿</div>
+        <h1>Duşakabin AR Deneyimi</h1>
+        <p class="subtitle">
+            Müşterileriniz duşakabinlerinizi artırılmış gerçeklikle banyolarında görebilir!
+        </p>
+        
+        <div class="qr-container">
+            <div class="qr-code">
+                <div class="qr-pattern"></div>
+            </div>
+            <p style="margin-top: 15px; color: #666;">
+                <strong>Tarayın ve AR deneyimini başlatın!</strong>
+            </p>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">📱</div>
+                <div class="feature-title">Mobil Uyumlu</div>
+                <div class="feature-desc">Tüm telefonlarda çalışır</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎨</div>
+                <div class="feature-title">Özelleştirilebilir</div>
+                <div class="feature-desc">Renk ve model seçenekleri</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📐</div>
+                <div class="feature-title">Gerçekçi</div>
+                <div class="feature-desc">1:1 ölçeklerde</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📷</div>
+                <div class="feature-title">Paylaşılabilir</div>
+                <div class="feature-desc">Fotoğraf çekme</div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>📋 Nasıl Kullanılır?</h3>
+            <ol>
+                <li>Telefonunuzun kamerası ile QR kodu tarayın</li>
+                <li>Kamera izni verin (gerekli)</li>
+                <li>Düz bir yüzeye (zemin veya duvar) odaklayın</li>
+                <li>Duşakabin modeli görünür hale gelir</li>
+                <li>Modeli hareket ettirin, ölçeklendirin, döndürün</li>
+                <li>Farklı modelleri ve renkleri deneyin</li>
+                <li>Beğendiğiniz görüntüyü fotoğraf çekin</li>
+            </ol>
+        </div>
+        
+        <div class="note">
+            <strong>⚠️ Not:</strong> İlk kullanımda Hiro marker (QR kod) gereklidir. 
+            Sonraki kullanımlarda düz yüzey tespiti çalışır.
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <a href="index.html" class="btn">🚀 AR Uygulamasını Aç</a>
+            <a href="#" onclick="window.print()" class="btn btn-secondary">🖨️ Yazdır</a>
+        </div>
+        
+        <p style="margin-top: 30px; color: #999; font-size: 14px;">
+            Powered by Web AR Technology | 
+            <a href="#" style="color: #667eea;">Destek</a> | 
+            <a href="#" style="color: #667eea;">İletişim</a>
+        </p>
+    </div>
+    
+    <script>
+        // QR kodu oluştur (basit gösterim)
+        function generateQR() {
+            const currentUrl = window.location.href.replace('qr.html', 'index.html');
+            console.log('QR Code URL:', currentUrl);
+            
+            // Gerçek QR kod için API kullanılabilir
+            // Örnek: https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=URL
+        }
+        
+        generateQR();
+        
+        // Otomatik yönlendirme (mobil cihazlarda)
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            // Mobil cihaz - QR kod göstermeye devam et
+        } else {
+            // Desktop - doğrudan AR'a yönlendir
+            setTimeout(() => {
+                if (confirm('Desktop cihaz tespit edildi. AR uygulamasını açmak ister misiniz?')) {
+                    window.location.href = 'index.html';
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

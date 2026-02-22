@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duşakabin AR - Banyonuzda Deneyin</title>
+    <meta name="description" content="Duşakabinlerinizi artırılmış gerçeklikle banyonuzda görün">
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- AR.js -->
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <!-- A-Frame -->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+        
+        #ar-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .product-selector {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+        
+        .product-card {
+            min-width: 120px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .product-card:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .product-card.active {
+            background: rgba(255,255,255,0.3);
+            border-color: #4CAF50;
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .control-btn {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            padding: 15px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .control-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 2000;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading" class="loading">
+        <div class="loading-spinner"></div>
+        <h2>AR Yükleniyor...</h2>
+        <p>Lütfen kamera izni verin</p>
+    </div>
+
+    <!-- AR Container -->
+    <div id="ar-container">
+        <a-scene 
+            embedded 
+            arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+            vr-mode-ui="enabled: false">
+            
+            <a-marker preset="hiro">
+                <a-entity id="shower-cabin" position="0 0.5 0"></a-entity>
+            </a-marker>
+            
+            <a-entity camera></a-entity>
+        </a-scene>
+    </div>
+
+    <!-- UI Overlay -->
+    <div class="ui-overlay">
+        <h1>🚿 Duşakabin AR</h1>
+        <p>Model seçin ve banyonuzda görün:</p>
+        
+        <div class="product-selector">
+            <div class="product-card active" data-model="standart">
+                <div style="font-size: 30px;">🚿</div>
+                <h3>Standart</h3>
+                <p>90x90 cm</p>
+            </div>
+            <div class="product-card" data-model="kose">
+                <div style="font-size: 30px;">📐</div>
+                <h3>Köşe</h3>
+                <p>80x120 cm</p>
+            </div>
+            <div class="product-card" data-model="rayli">
+                <div style="font-size: 30px;">🚪</div>
+                <h3>Raylı</h3>
+                <p>100x100 cm</p>
+            </div>
+            <div class="product-card" data-model="kuvetli">
+                <div style="font-size: 30px;">🛁</div>
+                <h3>Küvetli</h3>
+                <p>120x85 cm</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button class="control-btn" onclick="resetPosition()">🔄 Sıfırla</button>
+        <button class="control-btn" onclick="changeColor()">🎨 Renk</button>
+        <button class="control-btn" onclick="takePhoto()">📷 Fotoğraf</button>
+        <button class="control-btn" onclick="toggleAR()">📱 AR</button>
+    </div>
+
+    <script>
+        // Duşakabin modelleri
+        const showerModels = {
+            standart: {
+                width: 0.9,
+                height: 2.0,
+                depth: 0.9,
+                color: 0x87CEEB,
+                frameColor: 0xC0C0C0
+            },
+            kose: {
+                width: 0.8,
+                height: 2.0,
+                depth: 1.2,
+                color: 0x87CEEB,
+                frameColor: 0xC0C0C0
+            },
+            rayli: {
+                width: 1.0,
+                height: 2.0,
+                depth: 1.0,
+                color: 0x87CEEB,
+                frameColor: 0xC0C0C0
+            },
+            kuvetli: {
+                width: 1.2,
+                height: 2.0,
+                depth: 0.85,
+                color: 0x87CEEB,
+                frameColor: 0xC0C0C0
+            }
+        };
+
+        let currentModel = 'standart';
+        let scene, camera, renderer;
+        let showerCabin;
+
+        // Başlangıç
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+                initShowerCabin();
+            }, 3000);
+        });
+
+        // Duşakabin modelini oluştur
+        function initShowerCabin() {
+            const model = showerModels[currentModel];
+            const cabinEntity = document.getElementById('shower-cabin');
+            
+            // Cam panel
+            const glass = document.createElement('a-box');
+            glass.setAttribute('position', '0 1 0');
+            glass.setAttribute('width', model.width);
+            glass.setAttribute('height', model.height);
+            glass.setAttribute('depth', 0.01);
+            glass.setAttribute('material', `color: #87CEEB; transparent: true; opacity: 0.3;`);
+            glass.setAttribute('id', 'glass-panel');
+            
+            // Çerçeve
+            const frame = document.createElement('a-box');
+            frame.setAttribute('position', '0 1 0');
+            frame.setAttribute('width', model.width + 0.05);
+            frame.setAttribute('height', model.height + 0.05);
+            frame.setAttribute('depth', 0.02);
+            frame.setAttribute('material', 'color: #C0C0C0; metalness: 0.8;');
+            frame.setAttribute('id', 'frame');
+            
+            cabinEntity.appendChild(frame);
+            cabinEntity.appendChild(glass);
+        }
+
+        // Ürün seçimi
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.product-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                currentModel = this.dataset.model;
+                updateShowerCabin();
+            });
+        });
+
+        // Model güncelle
+        function updateShowerCabin() {
+            const cabinEntity = document.getElementById('shower-cabin');
+            cabinEntity.innerHTML = '';
+            initShowerCabin();
+        }
+
+        // Kontroller
+        function resetPosition() {
+            const cabin = document.getElementById('shower-cabin');
+            cabin.setAttribute('position', '0 0.5 0');
+            cabin.setAttribute('rotation', '0 0 0');
+        }
+
+        function changeColor() {
+            const colors = ['#87CEEB', '#B0E0E6', '#ADD8E6', '#E0FFFF', '#F0F8FF'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            const glass = document.getElementById('glass-panel');
+            if (glass) {
+                glass.setAttribute('material', `color: ${randomColor}; transparent: true; opacity: 0.3;`);
+            }
+        }
+
+        function takePhoto() {
+            alert('Fotoğraf çekme özelliği yakında eklenecek!');
+        }
+
+        function toggleAR() {
+            const container = document.getElementById('ar-container');
+            container.classList.toggle('hidden');
+        }
+
+        // Dokunmatik kontroller
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let currentScale = 1;
+        let currentRotation = 0;
+
+        // Touch events
+        document.addEventListener('touchstart', handleTouchStart, { passive: false });
+        document.addEventListener('touchmove', handleTouchMove, { passive: false });
+        document.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+        // Mouse events (desktop test)
+        document.addEventListener('mousedown', handleMouseDown);
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            isDragging = true;
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!isDragging) return;
+            
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - touchStartX;
+            const deltaY = touch.clientY - touchStartY;
+            
+            const cabin = document.getElementById('shower-cabin');
+            const currentPos = cabin.getAttribute('position');
+            const currentRot = cabin.getAttribute('rotation');
+            
+            // Hareket (düşük sensitivite)
+            cabin.setAttribute('position', {
+                x: currentPos.x + deltaX * 0.001,
+                y: currentPos.y,
+                z: currentPos.z + deltaY * 0.001
+            });
+            
+            // Rotasyon (yatay hareket)
+            cabin.setAttribute('rotation', {
+                x: currentRot.x,
+                y: currentRot.y + deltaX * 0.1,
+                z: currentRot.z
+            });
+            
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+        }
+
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            isDragging = false;
+        }
+
+        function handleMouseDown(e) {
+            isDragging = true;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+        }
+
+        function handleMouseMove(e) {
+            if (!isDragging) return;
+            
+            const deltaX = e.clientX - dragStartX;
+            const deltaY = e.clientY - dragStartY;
+            
+            const cabin = document.getElementById('shower-cabin');
+            const currentPos = cabin.getAttribute('position');
+            const currentRot = cabin.getAttribute('rotation');
+            
+            cabin.setAttribute('position', {
+                x: currentPos.x + deltaX * 0.001,
+                y: currentPos.y,
+                z: currentPos.z + deltaY * 0.001
+            });
+            
+            cabin.setAttribute('rotation', {
+                x: currentRot.x,
+                y: currentRot.y + deltaX * 0.1,
+                z: currentRot.z
+            });
+            
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+        }
+
+        function handleMouseUp(e) {
+            isDragging = false;
+        }
+
+        // Zoom kontrolü (mouse wheel)
+        document.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            const cabin = document.getElementById('shower-cabin');
+            const currentScale = cabin.getAttribute('scale') || { x: 1, y: 1, z: 1 };
+            
+            const scaleFactor = e.deltaY > 0 ? 0.9 : 1.1;
+            const newScale = Math.max(0.5, Math.min(2, currentScale.x * scaleFactor));
+            
+            cabin.setAttribute('scale', {
+                x: newScale,
+                y: newScale,
+                z: newScale
+            });
+        });
+
+        // Pinch zoom (mobil)
+        let initialPinchDistance = 0;
+
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 2) {
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                initialPinchDistance = Math.hypot(
+                    touch2.clientX - touch1.clientX,
+                    touch2.clientY - touch1.clientY
+                );
+            }
+        });
+
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                const currentDistance = Math.hypot(
+                    touch2.clientX - touch1.clientX,
+                    touch2.clientY - touch1.clientY
+                );
+                
+                const cabin = document.getElementById('shower-cabin');
+                const currentScale = cabin.getAttribute('scale') || { x: 1, y: 1, z: 1 };
+                
+                const scaleFactor = currentDistance / initialPinchDistance;
+                const newScale = Math.max(0.5, Math.min(2, currentScale.x * scaleFactor));
+                
+                cabin.setAttribute('scale', {
+                    x: newScale,
+                    y: newScale,
+                    z: newScale
+                });
+                
+                initialPinchDistance = currentDistance;
+            }
+        });
+
+        // Kamera izni kontrol
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    console.log('Kamera erişimi başarılı');
+                })
+                .catch(function(err) {
+                    console.error('Kamera erişimi hatası:', err);
+                    alert('Kamera erişimi gerekli. Lütfen izin verin.');
+                });
+        }
+    </script>
+</body>
+</html>
