@@ -215,20 +215,6 @@
     </style>
 </head>
 <body>
-    <!-- iOS Sensor İzni Dialog -->
-    <div id="ios-permission-dialog" class="ios-permission-dialog">
-        <div class="permission-content">
-            <h2>🔐 Sensor İzni Gerekli</h2>
-            <p>Duşakabin AR uygulaması cihaz sensörlerine erişim izni gerektirir.</p>
-            <p><strong>Lütfen aşağıdaki "İzin Ver" butonuna tıklayın:</strong></p>
-            <div class="permission-buttons">
-                <button class="permission-btn allow-btn" onclick="requestIOSPermission()">🔓 İzin Ver</button>
-                <button class="permission-btn deny-btn" onclick="denyIOSPermission()">❌ Reddet</button>
-            </div>
-            <p class="permission-note"><small>Not: İzin vermezseniz uygulama yine de çalışır.</small></p>
-        </div>
-    </div>
-
     <!-- Loading Screen -->
     <div id="loading" class="loading">
         <div class="loading-spinner"></div>
@@ -334,10 +320,11 @@
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
             console.log('iOS cihaz:', isIOS);
             
+            // BASİT ÇÖZÜM: iOS'da sensor iznini atla, direkt başlat
             if (isIOS) {
-                // iOS için izin dialogunu göster
+                console.log('📱 iOS cihaz - sensor izni atlanıyor, direkt AR başlatılıyor');
                 setTimeout(() => {
-                    showPermissionDialog();
+                    startAR();
                 }, 2000);
             } else {
                 // Diğer cihazlar için direkt başlat
@@ -593,41 +580,43 @@
 
         // iOS Sensor İzni Fonksiyonları
         function requestIOSPermission() {
-            console.log('iOS izin isteği başlatılıyor...');
+            console.log('🔓 iOS izin butonu tıklandı');
             
-            // iOS 13+ DeviceOrientationPermission
+            // iOS 13+ DeviceOrientationPermission - ÇOK BASİT ÇÖZÜM
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                // Kullanıcı etkileşimi sonrası izin iste
+                console.log('📱 iOS cihaz tespit edildi, izin isteği gönderiliyor...');
+                
+                // Direkt izin iste - basit ve etkili
                 DeviceOrientationEvent.requestPermission()
                     .then(response => {
-                        console.log('DeviceOrientation izin yanıtı:', response);
+                        console.log('📋 İzin yanıtı:', response);
                         if (response === 'granted') {
-                            console.log('✅ DeviceOrientation izni verildi');
+                            console.log('✅ İzin verildi - AR başlatılıyor');
                             hidePermissionDialog();
                             startAR();
                         } else {
-                            console.log('❌ DeviceOrientation izni reddedildi');
+                            console.log('❌ İzin reddedildi - yine de AR başlatılıyor');
                             hidePermissionDialog();
-                            startAR(); // İzin rededilse bile çalış
+                            startAR();
                         }
                     })
                     .catch(error => {
-                        console.error('❌ DeviceOrientation izin hatası:', error);
+                        console.error('❌ İzin hatası:', error);
+                        console.log('🔄 Hataya rağmen AR başlatılıyor...');
                         hidePermissionDialog();
-                        startAR(); // Hata olsa bile çalış
+                        startAR();
                     });
             } else {
-                // Diğer tarayıcılar veya izin gerekmiyorsa
-                console.log('DeviceOrientation izni gerekli değil');
+                console.log('📱 iOS değil veya izin gerekmiyor');
                 hidePermissionDialog();
                 startAR();
             }
         }
 
         function denyIOSPermission() {
-            console.log('Kullanıcı izni reddetti');
+            console.log('❌ Kullanıcı izni reddetti - AR başlatılıyor');
             hidePermissionDialog();
-            startAR(); // Reddetse bile AR çalışır
+            startAR();
         }
 
         function hidePermissionDialog() {
