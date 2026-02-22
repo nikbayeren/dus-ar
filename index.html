@@ -186,7 +186,6 @@
         <button class="control-btn" onclick="changeColor()">🎨 Renk</button>
         <button class="control-btn" onclick="takePhoto()">📷 Fotoğraf</button>
         <button class="control-btn" onclick="toggleAR()">📱 AR</button>
-        <button class="control-btn" onclick="requestDeviceOrientation()">🔐 Sensor İzni</button>
     </div>
 
     <script>
@@ -460,20 +459,29 @@
 
         // Device Motion Sensors için izin iste
         function requestDeviceOrientation() {
+            // iOS sensor izin dialogunda butonlar çalışmıyor, alternatif çözüm
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                // iOS 13+ için izin iste
-                DeviceOrientationEvent.requestPermission()
-                    .then(response => {
-                        if (response == 'granted') {
-                            console.log('Device orientation izni verildi');
+                // iOS 13+ için kullanıcı butona tıklaması gerekiyor
+                const userGesture = Promise.resolve();
+                userGesture.then(() => {
+                    DeviceOrientationEvent.requestPermission()
+                        .then(response => {
+                            console.log('Device orientation response:', response);
+                            if (response == 'granted') {
+                                console.log('Device orientation izni verildi');
+                                initAR();
+                            } else {
+                                console.log('Device orientation izni reddedildi');
+                                // İzin reddedilse bile AR çalışmaya devam et
+                                initAR();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Device orientation izin hatası:', error);
+                            // Hata olsa bile AR çalışmaya devam et
                             initAR();
-                        } else {
-                            console.log('Device orientation izni reddedildi');
-                            // İzin reddedilse bile AR çalışmaya devam et
-                            initAR();
-                        }
-                    })
-                    .catch(console.error);
+                        });
+                });
             } else {
                 // Diğer tarayıcılar için direkt başlat
                 console.log('Device orientation izni gerekli değil');
@@ -486,10 +494,8 @@
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(function(stream) {
                     console.log('Kamera erişimi başarılı');
-                    // Device motion iznini iste
-                    setTimeout(() => {
-                        requestDeviceOrientation();
-                    }, 1000);
+                    // Sensor izni olmadan direkt AR başlat
+                    initAR();
                 })
                 .catch(function(err) {
                     console.error('Kamera erişimi hatası:', err);
