@@ -172,7 +172,9 @@
                     autoplay>
                 </model-viewer>
 
-                <a id="iosArLink" rel="ar" href="" style="display:none"></a>
+                <a id="iosArLink" rel="ar" href="" style="position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;">
+                    <img id="iosArImg" alt="AR" />
+                </a>
 
                 <div class="toolbar">
                     <button class="btn" id="arBtn" type="button">📱 Banyonuzda Dene (AR)</button>
@@ -232,6 +234,7 @@
         const resetBtn = document.getElementById('resetBtn');
         const infoBtn = document.getElementById('infoBtn');
         const iosArLink = document.getElementById('iosArLink');
+        const iosArImg = document.getElementById('iosArImg');
 
         let activeId = null;
 
@@ -277,6 +280,7 @@
             mv.alt = `${p.name} duşakabin`;
 
             iosArLink.href = p.usdz;
+            iosArImg.src = p.usdz;
             setStatus('');
 
             if (isIOS()) {
