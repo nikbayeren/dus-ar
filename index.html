@@ -6,10 +6,407 @@
     <title>Duşakabin AR - Banyonuzda Deneyin</title>
     <meta name="description" content="Duşakabinlerinizi artırılmış gerçeklikle banyonuzda görün">
     
-    <!-- Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- A-Frame -->
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .product-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .product-card {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .product-card:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-5px);
+        }
+        
+        .product-card.active {
+            background: rgba(255,255,255,0.3);
+            border-color: #4CAF50;
+        }
+        
+        .product-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .product-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .product-desc {
+            opacity: 0.8;
+        }
+        
+        .preview-area {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            color: white;
+            backdrop-filter: blur(10px);
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .shower-preview {
+            width: 200px;
+            height: 300px;
+            background: linear-gradient(135deg, rgba(135,206,235,0.3) 0%, rgba(192,192,192,0.5) 100%);
+            border: 3px solid rgba(255,255,255,0.5);
+            border-radius: 10px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .shower-preview.standart {
+            width: 200px;
+            height: 300px;
+        }
+        
+        .shower-preview.kose {
+            width: 180px;
+            height: 320px;
+            clip-path: polygon(0 0, 100% 0, 100% 70%, 30% 100%, 0 100%);
+        }
+        
+        .shower-preview.rayli {
+            width: 220px;
+            height: 280px;
+        }
+        
+        .shower-preview.kuvetli {
+            width: 240px;
+            height: 260px;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            color: #333;
+        }
+        
+        .control-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+        }
+        
+        .info-box {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+        
+        .info-box h3 {
+            margin-bottom: 15px;
+            color: #4CAF50;
+        }
+        
+        .info-box ul {
+            list-style: none;
+        }
+        
+        .info-box li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .info-box li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .product-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-btn {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚿 Duşakabin AR</h1>
+            <p>Model seçin ve banyonuzda görün</p>
+        </div>
+        
+        <div class="product-selector">
+            <div class="product-card active" data-model="standart" onclick="selectModel('standart')">
+                <div class="product-icon">🚿</div>
+                <div class="product-title">Standart</div>
+                <div class="product-desc">90x90 cm - Klasik dikdörtgen</div>
+            </div>
+            
+            <div class="product-card" data-model="kose" onclick="selectModel('kose')">
+                <div class="product-icon">📐</div>
+                <div class="product-title">Köşe</div>
+                <div class="product-desc">80x120 cm - Alan tasarruflu</div>
+            </div>
+            
+            <div class="product-card" data-model="rayli" onclick="selectModel('rayli')">
+                <div class="product-icon">🚪</div>
+                <div class="product-title">Raylı</div>
+                <div class="product-desc">100x100 cm - Kayar kapı</div>
+            </div>
+            
+            <div class="product-card" data-model="kuvetli" onclick="selectModel('kuvetli')">
+                <div class="product-icon">🛁</div>
+                <div class="product-title">Küvetli</div>
+                <div class="product-desc">120x85 cm - Lüks tasarım</div>
+            </div>
+        </div>
+        
+        <div class="preview-area">
+            <div id="shower-preview" class="shower-preview standart">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                    <div style="font-size: 4em; margin-bottom: 10px;">🚿</div>
+                    <div style="font-weight: bold;">Standart Model</div>
+                    <div style="font-size: 0.9em; opacity: 0.8;">90x90 cm</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn" onclick="changeColor()">🎨 Renk Değiştir</button>
+            <button class="control-btn" onclick="resetView()">🔄 Sıfırla</button>
+            <button class="control-btn" onclick="showInfo()">📋 Bilgi</button>
+            <button class="control-btn" onclick="contactUs()">📞 İletişim</button>
+        </div>
+        
+        <div class="info-box">
+            <h3>🌟 Duşakabin AR Özellikleri</h3>
+            <ul>
+                <li>4 farklı model seçeneği</li>
+                <li>Gerçekçi ölçüler</li>
+                <li>Farklı renk seçenekleri</li>
+                <li>Mobil uyumlu tasarım</li>
+                <li>Hızlı ve kolay kullanım</li>
+                <li>Ücretsiz erişim</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentModel = 'standart';
+        let currentColor = '#87CEEB';
+        
+        const models = {
+            standart: {
+                name: 'Standart Model',
+                size: '90x90 cm',
+                icon: '🚿',
+                description: 'Klasik dikdörtgen tasarım'
+            },
+            kose: {
+                name: 'Köşe Model',
+                size: '80x120 cm',
+                icon: '📐',
+                description: 'Alan tasarruflu köşe tasarım'
+            },
+            rayli: {
+                name: 'Raylı Model',
+                size: '100x100 cm',
+                icon: '🚪',
+                description: 'Kayar kapı sistemi'
+            },
+            kuvetli: {
+                name: 'Küvetli Model',
+                size: '120x85 cm',
+                icon: '🛁',
+                description: 'Küvet üstü lüks tasarım'
+            }
+        };
+        
+        const colors = ['#87CEEB', '#B0E0E6', '#ADD8E6', '#E0FFFF', '#F0F8FF', '#FFE4B5', '#FFDAB9'];
+        
+        function selectModel(modelName) {
+            console.log('Model seçildi:', modelName);
+            currentModel = modelName;
+            
+            // Aktif kartı güncelle
+            document.querySelectorAll('.product-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`[data-model="${modelName}"]`).classList.add('active');
+            
+            // Preview'ı güncelle
+            const preview = document.getElementById('shower-preview');
+            preview.className = `shower-preview ${modelName}`;
+            
+            // Preview içeriğini güncelle
+            const model = models[modelName];
+            preview.innerHTML = `
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                    <div style="font-size: 4em; margin-bottom: 10px;">${model.icon}</div>
+                    <div style="font-weight: bold;">${model.name}</div>
+                    <div style="font-size: 0.9em; opacity: 0.8;">${model.size}</div>
+                </div>
+            `;
+            
+            // Renk uygula
+            preview.style.background = `linear-gradient(135deg, ${currentColor}33 0%, rgba(192,192,192,0.5) 100%)`;
+        }
+        
+        function changeColor() {
+            console.log('Renk değiştiriliyor');
+            const currentIndex = colors.indexOf(currentColor);
+            const nextIndex = (currentIndex + 1) % colors.length;
+            currentColor = colors[nextIndex];
+            
+            const preview = document.getElementById('shower-preview');
+            preview.style.background = `linear-gradient(135deg, ${currentColor}33 0%, rgba(192,192,192,0.5) 100%)`;
+            preview.style.borderColor = currentColor;
+        }
+        
+        function resetView() {
+            console.log('Görünüm sıfırlanıyor');
+            selectModel('standart');
+            currentColor = '#87CEEB';
+            changeColor();
+        }
+        
+        function showInfo() {
+            console.log('Bilgi gösteriliyor');
+            const model = models[currentModel];
+            alert(`${model.name}\n\nÖlçüler: ${model.size}\n${model.description}\n\nBu model banyonuzda harika görünecek!`);
+        }
+        
+        function contactUs() {
+            console.log('İletişim');
+            alert('📞 İletişim:\n\nTelefon: +90 555 123 4567\nE-posta: info@dusakabin.com\n\nSize özel teklif için bize ulaşın!');
+        }
+        
+        // Başlangıç
+        window.addEventListener('load', () => {
+            console.log('Duşakabin AR yüklendi');
+            selectModel('standart');
+        });
+        
+        // Touch events for mobile
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (!touchStartX || !touchStartY) return;
+            
+            const touchEndX = e.touches[0].clientX;
+            const touchEndY = e.touches[0].clientY;
+            
+            const diffX = touchStartX - touchEndX;
+            const diffY = touchStartY - touchEndY;
+            
+            // Swipe detection for model switching
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                const modelKeys = Object.keys(models);
+                const currentIndex = modelKeys.indexOf(currentModel);
+                
+                if (diffX > 0) {
+                    // Swipe left - next model
+                    const nextIndex = (currentIndex + 1) % modelKeys.length;
+                    selectModel(modelKeys[nextIndex]);
+                } else {
+                    // Swipe right - previous model
+                    const prevIndex = (currentIndex - 1 + modelKeys.length) % modelKeys.length;
+                    selectModel(modelKeys[prevIndex]);
+                }
+                
+                touchStartX = 0;
+                touchStartY = 0;
+            }
+        });
+    </script>
+</body>
+</html>
     
     <style>
         * {
