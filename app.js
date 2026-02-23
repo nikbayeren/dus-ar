@@ -55,7 +55,7 @@ arBtn.addEventListener('click', async () => {
   if (p) {
     const fileUrl = new URL(p.glb, location.href).href;
     const file = encodeURIComponent(fileUrl);
-    window.location.href = `intent://arvr.google.com/scene-viewer/1.0?file=${file}&mode=ar_preferred#Intent;scheme=https;package=com.google.android.googlequicksearchbox;end;`;
+    window.location.href = `intent://arvr.google.com/scene-viewer/1.0?file=${file}&mode=ar_preferred#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end;`;
   }
 });
 
