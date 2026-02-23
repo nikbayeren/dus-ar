@@ -84,38 +84,18 @@ if (arBtn) {
       return; 
     }
     
-    const p = PRODUCTS.find(x => x.id === active);
-    if (!p) return;
-    
-    setStatus('AR modu açılıyor...');
+    setStatus('AR açılıyor...');
     
     try {
-      // Try model-viewer's native WebXR AR (primary method)
+      // Activate AR mode (model-viewer handles it natively)
       if (mv && typeof mv.activateAR === 'function') {
         await mv.activateAR();
         setStatus('');
         return;
       }
     } catch (err) {
-      console.warn('Model-viewer AR failed:', err);
-    }
-    
-    // Fallback: Provide direct download for manual AR viewer use
-    const modelUrl = new URL(p.glb, 'https://raw.githubusercontent.com/nikbayeren/dus-ar/main').href;
-    const fileName = 'model.glb';
-    
-    // Option 1: Try to open in default 3D viewer (Android/iOS)
-    if (confirm('AR doğrudan açılamadı. Modeli indir ve AR uygulamasında aç?')) {
-      // Trigger download
-      const link = document.createElement('a');
-      link.href = modelUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setStatus('Model indirildi. Bir AR uygulaması seçin.');
-    } else {
-      setStatus('');
+      setStatus('❌ AR bu cihazda desteklenmiyor. (iOS 15+, Android Chrome gerekli)');
+      console.error('AR Error:', err);
     }
   });
 }
