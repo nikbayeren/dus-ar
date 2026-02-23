@@ -1,3 +1,15 @@
+# Models
+
+Bu klasörde gerçek GLB / USDZ model dosyalarınızı saklayın. Şimdilik demo uzak modeller kullanılıyor.
+
+Dosya önerileri:
+- `standart.glb`, `standart.usdz`
+- `kose.glb`, `kose.usdz`
+
+Optimaze rehberi:
+- GLB için Draco sıkıştırma kullanın.
+- Texture çözünürlüğünü 1k/2k aralığında tutun.
+- PBR materyallerde gereksiz haritaları kaldırın (ör. unused normal maps).
 # 3D Model Dosyaları
 
 Bu klasöre gerçek duşakabin modellerinizi (GLB ve USDZ) ekleyin. Dosya isimleri `app.js` içindeki `PRODUCTS` tanımıyla eşleşmelidir:

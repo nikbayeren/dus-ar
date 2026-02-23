@@ -62,175 +62,37 @@ Projeye bir PowerShell scripti eklendi: `git-push.ps1` — bu script size commit
 Script çalışması için yerel bilgisayarınızda `git` kurulu ve remote erişiminizin (SSH veya HTTPS) yapılandırılmış olması gerekir.
 
 
-### 2. QR Kod ile Erişim
-- `qr.html` dosyasını aç
-- QR kodu telefonla tara
-- AR deneyimini başlat
+# Duşakabin AR — Yeniden oluşturuldu (sıfırdan)
 
-### 3. Direkt Erişim
-- `index.html` dosyasını tarayıcıda aç
-- Kamera izni ver
-- Hiro marker ile test et
+Bu repo tamamen sıfırdan yeniden oluşturuldu: temiz, üretime hazır, statik bir web AR deneyimi için minimal bir iskelet sağlanmıştır.
 
-## 📋 Kullanım Talimatları
+Özellikler bu sürümde:
+- Modern tek sayfa arayüz (`index.html`, `styles.css`, `app.js`)
+- `model-viewer` ile AR deneyimi (iOS Quick Look, Android Scene Viewer desteği)
+- Yer tutucu GLB / USDZ modelleri (remote demo kaynakları)
+- Kolayca değiştirilebilir `PRODUCTS` listesi — kendi GLB/USDZ dosyalarınızı ekleyin
 
-### Müşteriler İçin:
-1. **QR Kodu Tara** - Telefon kamerası ile
-2. **Kamera İzni Ver** - Gerekli
-3. **Düz Yüzey** - Zemin veya duvara odakla
-4. **Model Görünür** - Otomatik tespit
-5. **Kontrol Et** - Dokunmatik hareketlerle
-6. **Fotoğraf Çek** - Paylaşmak için
+Hemen denemek için (yerel):
 
-### Teknik Özellikler:
-- **Teknoloji**: A-Frame + AR.js + Three.js
-- **Destek**: iOS 11+, Android 7+
-- **Kamera**: WebRTC API
-- **Performans**: 60 FPS hedef
+```powershell
+python -m http.server 8000
+# Aç: http://localhost:8000
+```
 
-## 🎯 Modeller ve Özellikler
+GitHub Pages (canlı):
+- Repo'nun `gh-pages` dalına push yaptım. Site adresiniz: `https://nikbayeren.github.io/du-s` (GitHub Pages ayarlarına bağlı olarak birkaç dakika içinde aktif olur).
 
-### Standart Model (90x90 cm)
-- Klasik dikdörtgen tasarım
-- Cam çerçeve seçenekleri
-- En popüler model
+Model yerleştirme:
+- Gerçek model dosyalarınızı `models/` klasörüne `standart.glb` / `standart.usdz` gibi isimlerle koyun veya `app.js` içindeki `PRODUCTS` listesinde URL'leri güncelleyin.
 
+Deploy süreçleri:
+- Eğer Netlify kullanıyorsanız, deploy branch olarak `main`/`master` veya `gh-pages`'i seçin.
+- Otomatik CI/CD isterseniz GitHub Actions ile `gh-pages` publish adımı oluşturabilirim.
+
+Sonraki adımlar önerebilirim:
+1. 3D modellerinizi optimize edin (glb draco sıkıştırma, texture atlasing).
+2. Model önizleme görselleri ekleyin (`preview.png`) ve SEO meta güncelleyin.
+3. Netlify veya GitHub Actions ile otomatik deploy kurulumunu ekleyeyim.
+
+İleri gitmek için hangi adımı istersiniz? (ör: GitHub Pages doğrula, Netlify ayarla, gerçek modeller eklemede yardım)
 ### Köşe Model (80x120 cm)
-- Köşe montaj için
-- Alan tasarrufu
-- Modern görünüm
-
-### Raylı Model (100x100 cm)
-- Kayar kapı sistemi
-- Geniş iç alan
-- Kolay kullanım
-
-### Küvetli Model (120x85 cm)
-- Küvet üstü montaj
-- Lüks tasarım
-- Ekstra depolama
-
-## 🔧 Özelleştirme
-
-### Renk Seçenekleri:
-- **Cam**: Mavi, şeffaf, buzlu, bronz
-- **Çerçeve**: Gümüş, altın, siyah, beyaz
-- **Profil**: Mat, parlak, fırçalanmış
-
-### Ölçüler:
-- Genişlik: 70-140 cm
-- Yükseklik: 190-220 cm  
-- Derinlik: 80-120 cm
-
-## 📱 Mobil Kontroller
-
-### Dokunmatik Hareketler:
-- **Tek Parmak** - Modeli hareket ettirme
-- **Sürükleme** - Döndürme
-- **İki Parmak** - Büyütme/küçültme
-- **Pinch** - Zoom
-
-### Buton Kontrolleri:
-- **🔄 Sıfırla** - Başlangıç pozisyonu
-- **🎨 Renk** - Cam rengi değiştir
-- **📷 Fotoğraf** - Görüntü kaydet
-- **📱 AR** - Kamera aç/kapa
-
-## 🌐 Yayınlama
-
-### Hosting Seçenekleri:
-1. **GitHub Pages** - Ücretsiz
-2. **Netlify** - Otomatik deploy
-3. **Vercel** - Performanslı
-4. **Firebase Hosting** - Google altyapısı
-
-### Domain Ayarları:
-```
-DNS: A-record -> IP
-SSL: Otomatik kurulum
-CDN: Global dağıtım
-```
-
-## 📈 Performans Optimizasyonu
-
-### Hız İyileştirmeleri:
-- **Lazy Loading** - Modeller geç yüklenir
-- **Compression** - Dosyalar sıkıştırılır
-- **CDN** - Hızlı erişim
-- **Cache** - Tekrar ziyaretler hızlı
-
-### Mobil Optimizasyon:
-- **Responsive** - Ekran boyutuna uyum
-- **Touch Events** - Dokunmatik kontrol
-- **Battery** - Düşük güç tüketimi
-- **Memory** - Verimli kullanım
-
-## 🔍 Hata Ayıklama
-
-### Yaygın Sorunlar:
-- **Kamera izni** - Ayarlardan etkinleştir
-- **HTTPS** - Güvenli bağlantı gerekli
-- **Marker** - Hiro marker basılı
-- **Lighting** - Yeterli ışık
-
-### Tarayıcı Desteği:
-- ✅ Chrome 60+
-- ✅ Safari 11+
-- ✅ Firefox 55+
-- ❌ Internet Explorer
-
-## 🛠️ Geliştirme
-
-### Proje Yapısı:
-```
-banyo app/
-├── index.html      # Ana AR uygulaması
-├── qr.html         # QR kod ve yönlendirme
-├── README.md       # Dokümantasyon
-└── models/         # 3D model dosyaları
-```
-
-### API Kullanımı:
-```javascript
-// Model değiştir
-updateShowerCabin('standart');
-
-// Renk değiştir
-changeColor('#87CEEB');
-
-// Sıfırla
-resetPosition();
-```
-
-## 📞 Destek
-
-### İletişim:
-- **E-posta**: destek@banyo-ar.com
-- **Telefon**: +90 555 123 4567
-- **Adres**: İstanbul, Türkiye
-
-### SSS:
-- **Ücretsiz mi?** - Evet, web versiyonu ücretsiz
-- **Telefon gerekir mi?** - Evet, kamera için
-- **İnternet gerekir mi?** - Evet, ilk yükleme için
-- **Reklam var mı?** - Hayır, temiz deneyim
-
-## 🚀 Gelecek Özellikler
-
-### Yakında:
-- [ ] Gerçek 3D modeller
-- [ ] Sesli komutlar  
-- [ ] Video kayıt
-- [ ] Sosyal medya paylaş
-- [ ] Fiyat hesaplama
-- [ ] Montaj talimatları
-
-### Uzun Vade:
-- [ ] AI iç tasarım
-- [ ] Sanal satış danışmanı
-- [ ] ERP entegrasyonu
-- [ ] Mobil uygulama
-
----
-
-**© 2024 Duşakabin AR** - Banyonuzdaki gelecek
