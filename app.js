@@ -79,32 +79,44 @@ if (arBtn) {
   arBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     
-    if (!active) { setStatus('Lütfen soldan bir model seçin.'); return; }
+    if (!active) { 
+      setStatus('Lütfen soldan bir model seçin.'); 
+      return; 
+    }
     
     const p = PRODUCTS.find(x => x.id === active);
     if (!p) return;
     
+    setStatus('AR modu açılıyor...');
+    
     try {
-      // First: Try model-viewer's native WebXR (iOS Safari 15+, Android Chrome)
-      if (mv && typeof mv.canActivateAR === 'function') {
-        const canAR = await mv.canActivateAR();
-        if (canAR) {
-          setStatus('AR açılıyor...');
-          await mv.activateAR();
-          setStatus('');
-          return;
-        }
+      // Try model-viewer's native WebXR AR (primary method)
+      if (mv && typeof mv.activateAR === 'function') {
+        await mv.activateAR();
+        setStatus('');
+        return;
       }
     } catch (err) {
-      console.warn('WebXR not available:', err);
+      console.warn('Model-viewer AR failed:', err);
     }
     
-    // Fallback: Open Google Scene Viewer (works in any modern browser on Android)
+    // Fallback: Provide direct download for manual AR viewer use
     const modelUrl = new URL(p.glb, 'https://raw.githubusercontent.com/nikbayeren/dus-ar/main').href;
-    const sceneViewerUrl = `https://arvr.google.com/scene-viewer/?file=${encodeURIComponent(modelUrl)}`;
+    const fileName = 'model.glb';
     
-    setStatus('AR viewer açılıyor...');
-    window.location.href = sceneViewerUrl;
+    // Option 1: Try to open in default 3D viewer (Android/iOS)
+    if (confirm('AR doğrudan açılamadı. Modeli indir ve AR uygulamasında aç?')) {
+      // Trigger download
+      const link = document.createElement('a');
+      link.href = modelUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setStatus('Model indirildi. Bir AR uygulaması seçin.');
+    } else {
+      setStatus('');
+    }
   });
 }
 
