@@ -42,9 +42,19 @@ arBtn.addEventListener('click', async () => {
   if (!active) { setStatus('Lütfen soldan bir model seçin.'); return; }
   setStatus('AR açılıyor...');
   try { if (typeof mv.activateAR === 'function') { await mv.activateAR(); setStatus(''); return; } } catch (e) { }
-  if (isIOS()) { iosArLink.click(); return; }
-  const p = PRODUCTS.find(x => x.id === active); if (p) {
-    const file = encodeURIComponent(p.glb);
+  if (isIOS()) { 
+    const p = PRODUCTS.find(x => x.id === active); 
+    if (p) { 
+      const fileUrl = new URL(p.usdz || p.glb, location.href).href;
+      iosArLink.href = fileUrl; 
+      iosArLink.click(); 
+    }
+    return; 
+  }
+  const p = PRODUCTS.find(x => x.id === active); 
+  if (p) {
+    const fileUrl = new URL(p.glb, location.href).href;
+    const file = encodeURIComponent(fileUrl);
     window.location.href = `intent://arvr.google.com/scene-viewer/1.0?file=${file}&mode=ar_preferred#Intent;scheme=https;package=com.google.android.googlequicksearchbox;end;`;
   }
 });
