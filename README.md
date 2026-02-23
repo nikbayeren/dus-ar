@@ -20,6 +20,48 @@ python -m http.server 8000
 # Tarayıcıda aç: http://localhost:8000
 ```
 
+## 📦 Repository - Hızlı GitHub Güncelleme
+
+Bu repo yerelde değiştirildi (CSS/JS ayrıldı, `app.js` eklendi, `models/` klasörü oluşturuldu). Aşağıdaki adımları izleyerek değişiklikleri GitHub'a gönderebilirsiniz.
+
+1. Değişiklikleri gözden geçirin:
+
+```powershell
+git status
+git diff
+```
+
+2. Basit commit ve push (varsayılan dal `main`):
+
+```powershell
+git add -A
+git commit -m "chore: refactor CSS/JS, add models placeholders, pin model-viewer"
+git push origin main
+```
+
+3. Eğer uzaktan (`origin`) ayarlı değilse, uzantıyı ekleyin:
+
+```powershell
+git remote add origin https://github.com/<kullanici>/<repo>.git
+git push -u origin main
+```
+
+Not: Repo üzerinde branch koruması veya farklı ana branch (`master`/`main`) varsa uygun dalı kullanın.
+
+### Otomatik Yardımcı Script
+Projeye bir PowerShell scripti eklendi: `git-push.ps1` — bu script size commit mesajını sorar ve belirtilen dala push yapar. Kullanım:
+
+```powershell
+# İletilen mesaj ile
+.\git-push.ps1 -Message "chore: cleanup and deploy" -Branch main
+
+# Veya interaktif (varsayılan branch: main)
+.\git-push.ps1
+```
+
+Script çalışması için yerel bilgisayarınızda `git` kurulu ve remote erişiminizin (SSH veya HTTPS) yapılandırılmış olması gerekir.
+
+
 ### 2. QR Kod ile Erişim
 - `qr.html` dosyasını aç
 - QR kodu telefonla tara
