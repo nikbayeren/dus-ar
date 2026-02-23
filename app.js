@@ -1,9 +1,6 @@
 // Clean, minimal app.js for the rebuilt Duşakabin AR demo
 const PRODUCTS = [
-  { id: 'standart', name: 'Standart', icon: '🚿', size: '90×90×200 cm', glb: 'models/standart.glb', usdz: 'models/standart.usdz' },
-  { id: 'kose', name: 'Köşe', icon: '📐', size: '80×120×200 cm', glb: 'models/kose.glb', usdz: 'models/kose.usdz' },
-  { id: 'rayli', name: 'Raylı', icon: '🚪', size: '100×100×200 cm', glb: 'models/rayli.glb', usdz: 'models/rayli.usdz' }
-  ,{ id: 'kabina-6-90', name: 'Kabina 6-90', icon: '🚿', size: '90×90×200 cm', glb: 'models/kabina-polokragla-geo-6-90.glb', usdz: '' }
+  { id: 'kabina-6-90', name: 'Kabina 6-90', icon: '🚿', size: '90×90×200 cm', glb: 'models/kabina-polokragla-geo-6-90.glb', usdz: 'models/kabina-polokragla-geo-6-90.usdz' }
 ];
 
 const mv = document.getElementById('mv');
@@ -16,44 +13,44 @@ const iosArLink = document.getElementById('iosArLink');
 
 let active = null;
 
-function setStatus(text){ if(statusEl) statusEl.textContent = text || ''; }
+function setStatus(text) { if (statusEl) statusEl.textContent = text || ''; }
 
-function isIOS(){ return /iPad|iPhone|iPod/.test(navigator.userAgent); }
+function isIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent); }
 
-function render(){
+function render() {
   productList.innerHTML = '';
-  for(const p of PRODUCTS){
+  for (const p of PRODUCTS) {
     const el = document.createElement('div');
-    el.className = 'product'+(active===p.id?' active':'');
+    el.className = 'product' + (active === p.id ? ' active' : '');
     el.tabIndex = 0;
     el.innerHTML = `<div class="icon">${p.icon}</div><div class="meta"><b>${p.name}</b><small>${p.size}</small></div>`;
-    el.addEventListener('click', ()=>select(p.id));
-    el.addEventListener('keydown', e=>{ if(e.key==='Enter') select(p.id); });
+    el.addEventListener('click', () => select(p.id));
+    el.addEventListener('keydown', e => { if (e.key === 'Enter') select(p.id); });
     productList.appendChild(el);
   }
 }
 
-function select(id){
-  const p = PRODUCTS.find(x=>x.id===id); if(!p) return;
+function select(id) {
+  const p = PRODUCTS.find(x => x.id === id); if (!p) return;
   active = id; render();
   mv.src = p.glb; mv.setAttribute('ios-src', p.usdz); mv.alt = p.name;
   iosArLink.href = p.usdz; setStatus(`Seçili: ${p.name} — ${p.size}`);
   arBtn.disabled = false; arBtn.focus();
 }
 
-arBtn.addEventListener('click', async ()=>{
-  if(!active){ setStatus('Lütfen soldan bir model seçin.'); return; }
+arBtn.addEventListener('click', async () => {
+  if (!active) { setStatus('Lütfen soldan bir model seçin.'); return; }
   setStatus('AR açılıyor...');
-  try{ if(typeof mv.activateAR==='function'){ await mv.activateAR(); setStatus(''); return; } }catch(e){}
-  if(isIOS()){ iosArLink.click(); return; }
-  const p = PRODUCTS.find(x=>x.id===active); if(p){
+  try { if (typeof mv.activateAR === 'function') { await mv.activateAR(); setStatus(''); return; } } catch (e) { }
+  if (isIOS()) { iosArLink.click(); return; }
+  const p = PRODUCTS.find(x => x.id === active); if (p) {
     const file = encodeURIComponent(p.glb);
     window.location.href = `intent://arvr.google.com/scene-viewer/1.0?file=${file}&mode=ar_preferred#Intent;scheme=https;package=com.google.android.googlequicksearchbox;end;`;
   }
 });
 
-resetBtn.addEventListener('click', ()=>{ try{ mv.jumpCameraToGoal?.(); }catch(e){} });
-infoBtn.addEventListener('click', ()=>{ const p = PRODUCTS.find(x=>x.id===active); if(p) alert(`${p.name}\nÖlçü: ${p.size}`); });
+resetBtn.addEventListener('click', () => { try { mv.jumpCameraToGoal?.(); } catch (e) { } });
+infoBtn.addEventListener('click', () => { const p = PRODUCTS.find(x => x.id === active); if (p) alert(`${p.name}\nÖlçü: ${p.size}`); });
 
 // init
 select(PRODUCTS[0].id);
