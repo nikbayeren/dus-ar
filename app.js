@@ -7,6 +7,7 @@ const PRODUCTS = [
 const mv = document.getElementById('mv');
 const productList = document.getElementById('productList');
 const statusEl = document.getElementById('status');
+const arBtn = document.getElementById('arBtn');
 const resetBtn = document.getElementById('resetBtn');
 const infoBtn = document.getElementById('infoBtn');
 
@@ -15,6 +16,14 @@ let active = null;
 // Ensure buttons exist before adding listeners
 if (!resetBtn || !infoBtn) {
   console.error('ERROR: Button elements not found in DOM!');
+}
+
+// Simple AR button - just activate AR
+if (arBtn) {
+  arBtn.addEventListener('click', () => {
+    if (!active) return;
+    if (mv) mv.activateAR?.();
+  });
 }
 
 function setStatus(text) { if (statusEl) statusEl.textContent = text || ''; }
