@@ -1,6 +1,7 @@
 // Clean, minimal app.js for the rebuilt Duşakabin AR demo
+const GITHUB_RAW = 'https://raw.githubusercontent.com/nikbayeren/dus-ar/main';
 const PRODUCTS = [
-  { id: 'kabina-6-90', name: 'Kabina 6-90', icon: '🚿', size: '90×90×200 cm', glb: 'models/kabina-polokragla-geo-6-90.glb', usdz: 'models/kabina-polokragla-geo-6-90.usdz' }
+  { id: 'kabina-6-90', name: 'Kabina 6-90', icon: '🚿', size: '90×90×200 cm', glb: GITHUB_RAW + '/models/kabina-polokragla-geo-6-90.glb', usdz: GITHUB_RAW + '/models/kabina-polokragla-geo-6-90.usdz' }
 ];
 
 const mv = document.getElementById('mv');
