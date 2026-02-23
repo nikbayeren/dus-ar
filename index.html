@@ -2,72 +2,30 @@
 <html lang="tr">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Duşakabin AR — Deneyin</title>
-    <meta name="description"
-        content="Telefonunuzda duşakabin modellerini arttırılmış gerçeklik ile banyonuzda görün." />
-    <meta name="theme-color" content="#3446eb" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Duşakabin AR</title>
 
-    <!-- Social preview -->
-    <meta property="og:title" content="Duşakabin AR — Deneyin" />
-    <meta property="og:description"
-        content="Telefonunuzda duşakabin modellerini arttırılmış gerçeklik ile banyonuzda görün." />
-    <meta property="og:image" content="/preview.png" />
-    <meta property="og:type" content="website" />
+    <script type="module" src="https://unpkg.com/@google/model-viewer@1.14.0/dist/model-viewer.min.js">
+    </script>
 
-    <!-- model-viewer (version pinned) -->
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@1.14.0/dist/model-viewer.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/nikbayeren/dus-ar@gh-pages/styles.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-    <main class="site">
-        <header class="site__header">
-            <div class="container">
-                <h1 class="brand">Duşakabin AR</h1>
-                <p class="tagline">Modellerimizi telefonunuzla banyonuzda gerçek boyutta deneyin.</p>
-            </div>
-        </header>
 
-        <section class="container layout">
-            <aside class="panel list-panel" aria-label="Modeller">
-                <h2>Modeller</h2>
-                <div id="productList" class="product-list" role="list"></div>
-                <p class="muted">Yer tutucu modeller kullanılıyor. Gerçek GLB / USDZ dosyalarınızı `models/` klasörüne
-                    ekleyin.</p>
-            </aside>
+    <h1>Duşakabin AR Demo</h1>
 
-            <section class="panel viewer-panel">
-                <model-viewer 
-                    id="mv" 
-                    src="" 
-                    ios-src=""
-                    alt="Duşakabin modeli"
-                    ar
-                    ar-modes="webxr scene-viewer quick-look"
-                    camera-controls
-                    ar-scale="fixed"
-                    exposure="1">
-                </model-viewer>
+    <model-viewer id="mv" src="" ios-src="" alt="Duşakabin" ar ar-modes="scene-viewer quick-look webxr" camera-controls
+        ar-scale="fixed" exposure="1" style="width:100%;height:500px;background:#f2f2f2;">
+    </model-viewer>
 
-                <div class="controls">
-                    <button id="arBtn" type="button" class="btn primary">📱 Banyonuzda Dene (AR)</button>
-                    <button id="resetBtn" type="button" class="btn">🔄 Sıfırla</button>
-                    <button id="infoBtn" type="button" class="btn">📋 Bilgi</button>
-                </div>
+    <div class="controls">
+        <button id="arBtn">📱 Banyonuzda Dene (AR)</button>
+    </div>
 
-                <div id="status" class="status" aria-live="polite"></div>
-            </section>
-        </section>
+    <script src="app.js"></script>
 
-        <footer class="footer">
-            <div class="container">© 2026 Duşakabin AR — Hazır demo. Model yerleştirme ve optimizasyon rehberi
-                `models/README.md` içinde.</div>
-        </footer>
-    </main>
-
-    <script type="module" src="https://cdn.jsdelivr.net/gh/nikbayeren/dus-ar@gh-pages/app.js"></script>
 </body>
 
 </html>
