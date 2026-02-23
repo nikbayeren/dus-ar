@@ -3,6 +3,7 @@ const PRODUCTS = [
   { id: 'standart', name: 'Standart', icon: '🚿', size: '90×90×200 cm', glb: 'models/standart.glb', usdz: 'models/standart.usdz' },
   { id: 'kose', name: 'Köşe', icon: '📐', size: '80×120×200 cm', glb: 'models/kose.glb', usdz: 'models/kose.usdz' },
   { id: 'rayli', name: 'Raylı', icon: '🚪', size: '100×100×200 cm', glb: 'models/rayli.glb', usdz: 'models/rayli.usdz' }
+  ,{ id: 'kabina-6-90', name: 'Kabina 6-90', icon: '🚿', size: '90×90×200 cm', glb: 'models/kabina-polokragla-geo-6-90.glb', usdz: '' }
 ];
 
 const mv = document.getElementById('mv');
