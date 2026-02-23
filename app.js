@@ -32,13 +32,18 @@ function render() {
 }
 
 function select(id) {
-  const p = PRODUCTS.find(x => x.id === id); if (!p) return;
-  active = id; render();
-  mv.src = p.glb; 
-  mv.setAttribute('ios-src', p.usdz); 
+  const p = PRODUCTS.find(x => x.id === id); 
+  if (!p) return;
+  
+  active = id; 
+  render();
+  
+  // Set model source (model-viewer will handle AR modes automatically)
+  mv.src = p.glb;
+  if (p.usdz) mv.setAttribute('ios-src', p.usdz);
   mv.setAttribute('model-scale', '100% 100% 100%');
   mv.alt = p.name;
-  iosArLink.href = p.usdz; 
+  
   setStatus(`Seçili: ${p.name} — ${p.size}`);
   arBtn.disabled = false; 
   arBtn.focus();
@@ -48,38 +53,44 @@ arBtn.addEventListener('click', async () => {
   if (!active) { setStatus('Lütfen soldan bir model seçin.'); return; }
   setStatus('AR açılıyor...');
   
-  // Try WebXR first (if available)
-  try { 
-    if (typeof mv.activateAR === 'function') { 
-      await mv.activateAR(); 
-      setStatus(''); 
-      return; 
-    } 
-  } catch (e) { 
-    console.warn('WebXR failed:', e);
+  try {
+    // Try model-viewer's native AR (works on iOS 15+ and Android)
+    if (mv.canActivateAR && await mv.canActivateAR()) {
+      await mv.activateAR();
+      setStatus('');
+      return;
+    }
+  } catch (e) {
+    console.warn('WebXR AR failed:', e);
   }
   
-  const p = PRODUCTS.find(x => x.id === active); 
-  if (!p) return;
-  
+  // Fallback for iOS: use Quick Look
   if (isIOS()) {
-    // iOS: Quick Look (requires USDZ or glb with scale hints)
-    const fileUrl = new URL(p.usdz || p.glb, location.href).href;
+    const p = PRODUCTS.find(x => x.id === active);
+    if (!p) return;
+    
+    // Try both USDZ (preferred) and GLB
+    const modelUrl = p.usdz || p.glb;
+    const fileUrl = new URL(modelUrl, 'https://raw.githubusercontent.com/nikbayeren/dus-ar/main').href;
+    
+    // Create and trigger download link (which iOS will open in Quick Look)
     const link = document.createElement('a');
     link.rel = 'ar';
     link.href = fileUrl;
-    // Trigger the link programmatically
+    link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    setTimeout(() => document.body.removeChild(link), 100);
     setStatus('');
-  } else {
-    // Android: Scene Viewer intent
-    const fileUrl = new URL(p.glb, location.href).href;
+    return;
+  }
+  
+  // Fallback for Android: Scene Viewer intent
+  const p = PRODUCTS.find(x => x.id === active);
+  if (p) {
+    const fileUrl = new URL(p.glb, 'https://raw.githubusercontent.com/nikbayeren/dus-ar/main').href;
     const file = encodeURIComponent(fileUrl);
-    // Scene Viewer intent: file, mode, and model-scale
-    const intent = `intent://arvr.google.com/scene-viewer/1.0?file=${file}&mode=ar_preferred&model-scale=1.0#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end;`;
-    window.location.href = intent;
+    window.location.href = `intent://arvr.google.com/scene-viewer/1.0?file=${file}&mode=ar_preferred#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end;`;
   }
 });
 
