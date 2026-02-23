@@ -10,7 +10,6 @@ const statusEl = document.getElementById('status');
 const arBtn = document.getElementById('arBtn');
 const resetBtn = document.getElementById('resetBtn');
 const infoBtn = document.getElementById('infoBtn');
-const iosArLink = document.getElementById('iosArLink');
 
 let active = null;
 
