@@ -38,7 +38,7 @@ function select(id) {
   active = id; 
   render();
   
-  // Set model source (model-viewer will handle AR modes automatically)
+  // Set model source
   mv.src = p.glb;
   if (p.usdz) mv.setAttribute('ios-src', p.usdz);
   mv.setAttribute('model-scale', '100% 100% 100%');
@@ -47,6 +47,19 @@ function select(id) {
   setStatus(`Seçili: ${p.name} — ${p.size}`);
   arBtn.disabled = false; 
   arBtn.focus();
+  
+  // Auto-activate AR for iOS on model load
+  if (isIOS()) {
+    mv.addEventListener('load', async () => {
+      try {
+        if (mv.canActivateAR && await mv.canActivateAR()) {
+          await mv.activateAR();
+        }
+      } catch (e) {
+        console.warn('Auto AR activation failed:', e);
+      }
+    }, { once: true });
+  }
 }
 
 arBtn.addEventListener('click', async () => {
@@ -54,44 +67,27 @@ arBtn.addEventListener('click', async () => {
   setStatus('AR açılıyor...');
   
   try {
-    // Try model-viewer's native AR (works on iOS 15+ and Android)
+    // Try WebXR/native AR first (works on iOS 15+ and Android)
     if (mv.canActivateAR && await mv.canActivateAR()) {
       await mv.activateAR();
       setStatus('');
       return;
     }
   } catch (e) {
-    console.warn('WebXR AR failed:', e);
+    console.error('AR activation error:', e);
   }
   
-  // Fallback for iOS: use Quick Look
-  if (isIOS()) {
+  // If WebXR fails on Android, try Scene Viewer intent
+  if (!isIOS()) {
     const p = PRODUCTS.find(x => x.id === active);
-    if (!p) return;
-    
-    // Try both USDZ (preferred) and GLB
-    const modelUrl = p.usdz || p.glb;
-    const fileUrl = new URL(modelUrl, 'https://raw.githubusercontent.com/nikbayeren/dus-ar/main').href;
-    
-    // Create and trigger download link (which iOS will open in Quick Look)
-    const link = document.createElement('a');
-    link.rel = 'ar';
-    link.href = fileUrl;
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    setTimeout(() => document.body.removeChild(link), 100);
-    setStatus('');
-    return;
+    if (p) {
+      const fileUrl = new URL(p.glb, 'https://raw.githubusercontent.com/nikbayeren/dus-ar/main').href;
+      const file = encodeURIComponent(fileUrl);
+      window.location.href = `intent://arvr.google.com/scene-viewer/1.0?file=${file}&mode=ar_preferred#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end;`;
+    }
   }
   
-  // Fallback for Android: Scene Viewer intent
-  const p = PRODUCTS.find(x => x.id === active);
-  if (p) {
-    const fileUrl = new URL(p.glb, 'https://raw.githubusercontent.com/nikbayeren/dus-ar/main').href;
-    const file = encodeURIComponent(fileUrl);
-    window.location.href = `intent://arvr.google.com/scene-viewer/1.0?file=${file}&mode=ar_preferred#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end;`;
-  }
+  setStatus('');
 });
 
 resetBtn.addEventListener('click', () => { try { mv.jumpCameraToGoal?.(); } catch (e) { } });
