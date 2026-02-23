@@ -14,6 +14,11 @@ const iosArLink = document.getElementById('iosArLink');
 
 let active = null;
 
+// Ensure buttons exist before adding listeners
+if (!arBtn || !resetBtn || !infoBtn) {
+  console.error('ERROR: Button elements not found in DOM!');
+}
+
 function setStatus(text) { if (statusEl) statusEl.textContent = text || ''; }
 
 function isIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent); }
@@ -45,12 +50,17 @@ function select(id) {
   mv.alt = p.name;
   
   setStatus(`Seçili: ${p.name} — ${p.size}`);
-  arBtn.disabled = false; 
-  arBtn.focus();
+  
+  // Enable AR button
+  if (arBtn) {
+    arBtn.disabled = false;
+    arBtn.classList.remove('disabled');
+    arBtn.focus();
+  }
   
   // Auto-activate AR for iOS on model load
-  if (isIOS()) {
-    mv.addEventListener('load', async () => {
+  if (isIOS() && mv) {
+    const loadHandler = async () => {
       try {
         if (mv.canActivateAR && await mv.canActivateAR()) {
           await mv.activateAR();
@@ -58,40 +68,69 @@ function select(id) {
       } catch (e) {
         console.warn('Auto AR activation failed:', e);
       }
-    }, { once: true });
+      mv.removeEventListener('load', loadHandler);
+    };
+    mv.addEventListener('load', loadHandler);
   }
 }
 
-arBtn.addEventListener('click', async () => {
-  if (!active) { setStatus('Lütfen soldan bir model seçin.'); return; }
-  setStatus('AR açılıyor...');
-  
-  try {
-    // Try WebXR/native AR first (works on iOS 15+ and Android)
-    if (mv.canActivateAR && await mv.canActivateAR()) {
-      await mv.activateAR();
-      setStatus('');
-      return;
+// Attach event listeners only if buttons exist
+if (arBtn) {
+  arBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    
+    if (!active) { setStatus('Lütfen soldan bir model seçin.'); return; }
+    setStatus('AR açılıyor...');
+    
+    try {
+      // Try WebXR/native AR first (works on iOS 15+ and Android)
+      if (mv && mv.canActivateAR && await mv.canActivateAR()) {
+        await mv.activateAR();
+        setStatus('');
+        return;
+      }
+    } catch (e) {
+      console.error('AR activation error:', e);
     }
-  } catch (e) {
-    console.error('AR activation error:', e);
-  }
-  
-  // If WebXR fails on Android, try Scene Viewer intent
-  if (!isIOS()) {
-    const p = PRODUCTS.find(x => x.id === active);
-    if (p) {
-      const fileUrl = new URL(p.glb, 'https://raw.githubusercontent.com/nikbayeren/dus-ar/main').href;
-      const file = encodeURIComponent(fileUrl);
-      window.location.href = `intent://arvr.google.com/scene-viewer/1.0?file=${file}&mode=ar_preferred#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end;`;
+    
+    // If WebXR fails on Android, try Scene Viewer intent
+    if (!isIOS()) {
+      const p = PRODUCTS.find(x => x.id === active);
+      if (p) {
+        const fileUrl = new URL(p.glb, 'https://raw.githubusercontent.com/nikbayeren/dus-ar/main').href;
+        const file = encodeURIComponent(fileUrl);
+        window.location.href = `intent://arvr.google.com/scene-viewer/1.0?file=${file}&mode=ar_preferred#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end;`;
+      }
     }
-  }
-  
-  setStatus('');
+    
+    setStatus('');
+  });
+}
+
+if (resetBtn) {
+  resetBtn.addEventListener('click', (e) => { 
+    e.preventDefault();
+    try { if (mv) mv.jumpCameraToGoal?.(); } catch (error) { } 
+  });
+}
+
+if (infoBtn) {
+  infoBtn.addEventListener('click', (e) => { 
+    e.preventDefault();
+    const p = PRODUCTS.find(x => x.id === active); 
+    if (p) alert(`${p.name}\nÖlçü: ${p.size}`); 
+  });
+}
+
+// Debug: Log element status
+console.log('Elements loaded:', { 
+  mv: !!mv, 
+  arBtn: !!arBtn, 
+  resetBtn: !!resetBtn, 
+  infoBtn: !!infoBtn, 
+  productList: !!productList, 
+  statusEl: !!statusEl 
 });
 
-resetBtn.addEventListener('click', () => { try { mv.jumpCameraToGoal?.(); } catch (e) { } });
-infoBtn.addEventListener('click', () => { const p = PRODUCTS.find(x => x.id === active); if (p) alert(`${p.name}\nÖlçü: ${p.size}`); });
-
-// init
+// Init
 select(PRODUCTS[0].id);
