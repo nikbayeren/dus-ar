@@ -7,14 +7,13 @@ const PRODUCTS = [
 const mv = document.getElementById('mv');
 const productList = document.getElementById('productList');
 const statusEl = document.getElementById('status');
-const arBtn = document.getElementById('arBtn');
 const resetBtn = document.getElementById('resetBtn');
 const infoBtn = document.getElementById('infoBtn');
 
 let active = null;
 
 // Ensure buttons exist before adding listeners
-if (!arBtn || !resetBtn || !infoBtn) {
+if (!resetBtn || !infoBtn) {
   console.error('ERROR: Button elements not found in DOM!');
 }
 
@@ -49,55 +48,9 @@ function select(id) {
   mv.alt = p.name;
   
   setStatus(`Seçili: ${p.name} — ${p.size}`);
-  
-  // Enable AR button
-  if (arBtn) {
-    arBtn.disabled = false;
-    arBtn.classList.remove('disabled');
-    arBtn.focus();
-  }
-  
-  // Auto-activate AR for iOS on model load
-  if (isIOS() && mv) {
-    const loadHandler = async () => {
-      try {
-        if (mv.canActivateAR && await mv.canActivateAR()) {
-          await mv.activateAR();
-        }
-      } catch (e) {
-        console.warn('Auto AR activation failed:', e);
-      }
-      mv.removeEventListener('load', loadHandler);
-    };
-    mv.addEventListener('load', loadHandler);
-  }
 }
 
 // Attach event listeners only if buttons exist
-if (arBtn) {
-  arBtn.addEventListener('click', async (e) => {
-    e.preventDefault();
-    
-    if (!active) { 
-      setStatus('Lütfen soldan bir model seçin.'); 
-      return; 
-    }
-    
-    setStatus('AR açılıyor...');
-    
-    try {
-      // Activate AR mode (model-viewer handles it natively)
-      if (mv && typeof mv.activateAR === 'function') {
-        await mv.activateAR();
-        setStatus('');
-        return;
-      }
-    } catch (err) {
-      setStatus('❌ AR bu cihazda desteklenmiyor. (iOS 15+, Android Chrome gerekli)');
-      console.error('AR Error:', err);
-    }
-  });
-}
 
 if (resetBtn) {
   resetBtn.addEventListener('click', (e) => { 
