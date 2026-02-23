@@ -81,8 +81,11 @@ if (arBtn) {
     
     if (!active) { setStatus('Lütfen soldan bir model seçin.'); return; }
     
+    const p = PRODUCTS.find(x => x.id === active);
+    if (!p) return;
+    
     try {
-      // First priority: Try model-viewer's native WebXR/AR (works on iOS Safari 15+ and Android Chrome)
+      // First: Try model-viewer's native WebXR (iOS Safari 15+, Android Chrome)
       if (mv && typeof mv.canActivateAR === 'function') {
         const canAR = await mv.canActivateAR();
         if (canAR) {
@@ -93,20 +96,15 @@ if (arBtn) {
         }
       }
     } catch (err) {
-      console.warn('WebXR activation failed:', err);
+      console.warn('WebXR not available:', err);
     }
     
-    // Fallback: Show message for mobile testing
-    if (isIOS()) {
-      setStatus('⚠️ iOS AR Safari 15+ gerekli. Lütfen cihazda deneyiniz.');
-    } else {
-      setStatus('⚠️ Android AR için Chrome uygulaması ve Google Play Services gerekli.');
-      // Try to open Play Store for Google Play Services
-      setTimeout(() => {
-        const androidUrl = 'https://play.google.com/store/apps/details?id=com.google.android.googlequicksearchbox';
-        window.open(androidUrl, '_blank');
-      }, 500);
-    }
+    // Fallback: Open Google Scene Viewer (works in any modern browser on Android)
+    const modelUrl = new URL(p.glb, 'https://raw.githubusercontent.com/nikbayeren/dus-ar/main').href;
+    const sceneViewerUrl = `https://arvr.google.com/scene-viewer/?file=${encodeURIComponent(modelUrl)}`;
+    
+    setStatus('AR viewer açılıyor...');
+    window.location.href = sceneViewerUrl;
   });
 }
 
