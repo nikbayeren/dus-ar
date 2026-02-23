@@ -85,6 +85,20 @@ GitHub Pages (canlı):
 Model yerleştirme:
 - Gerçek model dosyalarınızı `models/` klasörüne `standart.glb` / `standart.usdz` gibi isimlerle koyun veya `app.js` içindeki `PRODUCTS` listesinde URL'leri güncelleyin.
 
+Yerel örnek modelleri otomatik indirmek için (önerilen hızlı adım):
+
+```powershell
+.\download-models.ps1
+```
+
+Bu script `models/` klasörüne demo GLB ve USDZ dosyalarını indirecek. İndirmeden sonra dosyaları commit edip pushlayın:
+
+```powershell
+git add models/*
+git commit -m "chore(models): add demo GLB/USDZ samples"
+git push origin gh-pages
+```
+
 Deploy süreçleri:
 - Eğer Netlify kullanıyorsanız, deploy branch olarak `main`/`master` veya `gh-pages`'i seçin.
 - Otomatik CI/CD isterseniz GitHub Actions ile `gh-pages` publish adımı oluşturabilirim.

@@ -1,8 +1,8 @@
 // Clean, minimal app.js for the rebuilt Duşakabin AR demo
 const PRODUCTS = [
-  { id: 'standart', name: 'Standart', icon: '🚿', size: '90×90×200 cm', glb: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb', usdz: 'https://modelviewer.dev/shared-assets/models/Astronaut.usdz' },
-  { id: 'kose', name: 'Köşe', icon: '📐', size: '80×120×200 cm', glb: 'https://modelviewer.dev/shared-assets/models/RobotExpressive.glb', usdz: 'https://modelviewer.dev/shared-assets/models/RobotExpressive.usdz' },
-  { id: 'rayli', name: 'Raylı', icon: '🚪', size: '100×100×200 cm', glb: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb', usdz: 'https://modelviewer.dev/shared-assets/models/Astronaut.usdz' }
+  { id: 'standart', name: 'Standart', icon: '🚿', size: '90×90×200 cm', glb: 'models/standart.glb', usdz: 'models/standart.usdz' },
+  { id: 'kose', name: 'Köşe', icon: '📐', size: '80×120×200 cm', glb: 'models/kose.glb', usdz: 'models/kose.usdz' },
+  { id: 'rayli', name: 'Raylı', icon: '🚪', size: '100×100×200 cm', glb: 'models/rayli.glb', usdz: 'models/rayli.usdz' }
 ];
 
 const mv = document.getElementById('mv');
