@@ -80,30 +80,33 @@ if (arBtn) {
     e.preventDefault();
     
     if (!active) { setStatus('Lütfen soldan bir model seçin.'); return; }
-    setStatus('AR açılıyor...');
     
     try {
-      // Try WebXR/native AR first (works on iOS 15+ and Android)
-      if (mv && mv.canActivateAR && await mv.canActivateAR()) {
-        await mv.activateAR();
-        setStatus('');
-        return;
+      // First priority: Try model-viewer's native WebXR/AR (works on iOS Safari 15+ and Android Chrome)
+      if (mv && typeof mv.canActivateAR === 'function') {
+        const canAR = await mv.canActivateAR();
+        if (canAR) {
+          setStatus('AR açılıyor...');
+          await mv.activateAR();
+          setStatus('');
+          return;
+        }
       }
-    } catch (e) {
-      console.error('AR activation error:', e);
+    } catch (err) {
+      console.warn('WebXR activation failed:', err);
     }
     
-    // If WebXR fails on Android, try Scene Viewer intent
-    if (!isIOS()) {
-      const p = PRODUCTS.find(x => x.id === active);
-      if (p) {
-        const fileUrl = new URL(p.glb, 'https://raw.githubusercontent.com/nikbayeren/dus-ar/main').href;
-        const file = encodeURIComponent(fileUrl);
-        window.location.href = `intent://arvr.google.com/scene-viewer/1.0?file=${file}&mode=ar_preferred#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end;`;
-      }
+    // Fallback: Show message for mobile testing
+    if (isIOS()) {
+      setStatus('⚠️ iOS AR Safari 15+ gerekli. Lütfen cihazda deneyiniz.');
+    } else {
+      setStatus('⚠️ Android AR için Chrome uygulaması ve Google Play Services gerekli.');
+      // Try to open Play Store for Google Play Services
+      setTimeout(() => {
+        const androidUrl = 'https://play.google.com/store/apps/details?id=com.google.android.googlequicksearchbox';
+        window.open(androidUrl, '_blank');
+      }, 500);
     }
-    
-    setStatus('');
   });
 }
 
